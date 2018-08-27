@@ -227,7 +227,7 @@ class ShowHideTestPage extends StatelessWidget {
 class ShowHideWidget extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    return new ShowHideState();
+    return new WidgetTestState();
   }
 }
 
@@ -266,6 +266,20 @@ class ShowHideState extends State<ShowHideWidget> {
         });
   }
 
+  /**
+   * expanded 有flex 权重布局
+   */
+  _getFlexImage(String path, int flex) {
+//    return new Expanded(
+//      child: new Icon(Icons.add),
+//      flex: flex,
+//    );
+    return new Icon(Icons.add);
+  }
+
+  /**
+   * container 才能加 padding margin
+   */
   _getChild() {
     if (isShow) {
       return new Container(
@@ -286,10 +300,27 @@ class ShowHideState extends State<ShowHideWidget> {
                     label: new Text("raiseBtn"))
               ]));
     } else {
-      return new Text('666');
+      return new Center(
+          child: new Container(
+            child: new Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                _getFlexImage('images/icon_eat.jpg', 1),
+                _getFlexImage('images/icon_eat.jpg', 2),
+                _getFlexImage('images/icon_eat.jpg', 1),
+              ],
+            ),
+            padding: const EdgeInsets.only(
+              left: 15.0,
+              right: 15.0,
+            ),
+          ));
     }
   }
 
+  /**
+   * tooltip 长按空间会显示
+   */
   @override
   Widget build(BuildContext context) {
     Scaffold scaffold = new Scaffold(
@@ -304,13 +335,12 @@ class ShowHideState extends State<ShowHideWidget> {
               list.add(item);
               return list;
             },
+            tooltip: '菜单',
           )
         ],
       ),
-      backgroundColor: Colors.yellow,
-      body: new Center(
-        child: _getChild(),
-      ),
+      backgroundColor: Colors.blueAccent,
+      body: _getChild(),
       floatingActionButton: new FloatingActionButton(
         onPressed: switchState,
         tooltip: 'showAndHide',
@@ -321,5 +351,71 @@ class ShowHideState extends State<ShowHideWidget> {
     );
 
     return scaffold;
+  }
+}
+
+class WidgetTestState extends State<ShowHideWidget> {
+
+  /**
+   * stack 能重叠覆盖
+   * alignment  x 从左到右(-1~1)  y  从上到下(-1~1)
+   * CircleAvatar的radius半径大小
+   * Colors.black45  黑45不透明度
+   */
+  _getStackTest() {
+    return new Container(
+      height: 300.0,
+      width: 300.0,
+//      alignment: Alignment(1.0, -1.0),//只有child有效，stack的第一个控件
+      child: new Stack(
+//        alignment: Alignment(1.0, -1.0),//stack内的所有控件都有效果 相对于父布局位置
+        children: <Widget>[
+          new CircleAvatar(
+            backgroundColor: new Color.fromARGB(54, 0, 0, 0),
+            backgroundImage: new AssetImage('images/test.jpg'),
+            radius: 120.0,
+          ),
+          new Container(
+//              alignment: Alignment(1.0, -1.0),
+            padding: EdgeInsets.all(10.0),
+            decoration: new BoxDecoration(
+              color: Colors.black45,
+              borderRadius: new BorderRadius.only(
+                  topLeft: Radius.circular(10.0)),
+            ),
+            margin: EdgeInsets.only(left: 50.0,top: 50.0),
+            child: new Text(
+              'text',
+              style: new TextStyle(
+                fontSize: 20.0,
+                fontWeight: FontWeight.bold,
+                color: Colors.red,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+      appBar: new AppBar(
+        title: new Text(
+          'WidgetTest',
+          style: new TextStyle(
+            inherit: true,
+            color: Colors.greenAccent,
+          ),
+        ),
+      ),
+      body: new Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          _getStackTest(),
+        ],
+      ),
+    );
   }
 }
