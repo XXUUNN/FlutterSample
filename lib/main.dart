@@ -1,4 +1,5 @@
 import 'package:english_words/english_words.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 /**
@@ -82,7 +83,7 @@ class RandomWordsState extends State<RandomWords> {
       new MaterialPageRoute(
         builder: (context) {
           final tiles = _saved.map(
-                (pair) {
+            (pair) {
               return new ListTile(
                 title: new Text(
                   pair.asPascalCase,
@@ -93,9 +94,9 @@ class RandomWordsState extends State<RandomWords> {
           );
           final divided = ListTile
               .divideTiles(
-            context: context,
-            tiles: tiles,
-          )
+                context: context,
+                tiles: tiles,
+              )
               .toList();
           return new Scaffold(
             appBar: new AppBar(
@@ -144,9 +145,7 @@ class UITestApp extends StatelessWidget {
     );
 
     Column buildButtonColumn(IconData icon, String label) {
-      var color = Theme
-          .of(context)
-          .primaryColor;
+      var color = Theme.of(context).primaryColor;
       return new Column(
         children: <Widget>[
           new Icon(
@@ -227,7 +226,7 @@ class ShowHideTestPage extends StatelessWidget {
 class ShowHideWidget extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    return new WidgetTestState();
+    return new CupertinoTestState();
   }
 }
 
@@ -302,19 +301,19 @@ class ShowHideState extends State<ShowHideWidget> {
     } else {
       return new Center(
           child: new Container(
-            child: new Row(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                _getFlexImage('images/icon_eat.jpg', 1),
-                _getFlexImage('images/icon_eat.jpg', 2),
-                _getFlexImage('images/icon_eat.jpg', 1),
-              ],
-            ),
-            padding: const EdgeInsets.only(
-              left: 15.0,
-              right: 15.0,
-            ),
-          ));
+        child: new Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            _getFlexImage('images/icon_eat.jpg', 1),
+            _getFlexImage('images/icon_eat.jpg', 2),
+            _getFlexImage('images/icon_eat.jpg', 1),
+          ],
+        ),
+        padding: const EdgeInsets.only(
+          left: 15.0,
+          right: 15.0,
+        ),
+      ));
     }
   }
 
@@ -355,7 +354,6 @@ class ShowHideState extends State<ShowHideWidget> {
 }
 
 class WidgetTestState extends State<ShowHideWidget> {
-
   /**
    * stack 能重叠覆盖
    * alignment  x 从左到右(-1~1)  y  从上到下(-1~1)
@@ -380,10 +378,10 @@ class WidgetTestState extends State<ShowHideWidget> {
             padding: EdgeInsets.all(10.0),
             decoration: new BoxDecoration(
               color: Colors.black45,
-              borderRadius: new BorderRadius.only(
-                  topLeft: Radius.circular(10.0)),
+              borderRadius:
+                  new BorderRadius.only(topLeft: Radius.circular(10.0)),
             ),
-            margin: EdgeInsets.only(left: 50.0,top: 50.0),
+            margin: EdgeInsets.only(left: 50.0, top: 50.0),
             child: new Text(
               'text',
               style: new TextStyle(
@@ -417,5 +415,239 @@ class WidgetTestState extends State<ShowHideWidget> {
         ],
       ),
     );
+  }
+}
+
+/**
+ * gridView
+ *
+ * maxCrossAxisExtent 交叉方向（和主方向垂直）的最大item长度、
+ * mainAxisSpacing 间隔线
+ * scrollDirection 主方向的方向  横向或者纵向
+ */
+class GridViewTestState extends State<ShowHideWidget> {
+  @override
+  Widget build(BuildContext context) {
+    return new Container(
+      child: _buildGrid(),
+      color: Colors.red,
+    );
+  }
+
+  _buildGrid() {
+    return new GridView.extent(
+      maxCrossAxisExtent: 150.0,
+      mainAxisSpacing: 10.0,
+      crossAxisSpacing: 10.0,
+      children: _buildGridItem(30),
+      scrollDirection: Axis.horizontal,
+    );
+  }
+
+  _buildGridItem(int count) {
+    return new List<Container>.generate(
+        count,
+        (int index) => new Container(
+              color: Colors.white,
+              child: Image.asset(
+                'images/test.jpg',
+                fit: BoxFit.fill,
+              ),
+            ));
+  }
+}
+
+/**
+ * 列表item常用  有阴影  圆角
+ */
+class CardTestState extends State<ShowHideWidget> {
+  _buildCard() {
+    return new Scaffold(
+      body: new Card(
+        child: new Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            new ListTile(
+              title: new Text('1625 Main Street',
+                  style: new TextStyle(fontWeight: FontWeight.w500)),
+              subtitle: new Text('My City, CA 99984'),
+              leading: new Icon(
+                Icons.restaurant_menu,
+                color: Colors.blue[500],
+              ),
+            ),
+            new Divider(),
+            new ListTile(
+              title: new Text('(408) 555-1212',
+                  style: new TextStyle(fontWeight: FontWeight.w500)),
+              leading: new Icon(
+                Icons.contact_phone,
+                color: Colors.blue[500],
+              ),
+            ),
+            new ListTile(
+              title: new Text('costa@example.com'),
+              leading: new Icon(
+                Icons.contact_mail,
+                color: Colors.blue[500],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _buildCard();
+  }
+}
+
+/**
+ * 底部导航栏  页面切换
+ * currentIndex 值变化 底部按钮UI变化
+ */
+class BottomBarTestState extends State<ShowHideWidget> {
+  int _curIndex = 0;
+  var _pageController = PageController(initialPage: 0);
+
+  _buildBottomItem() {
+    return List<BottomNavigationBarItem>.generate(
+        3,
+        (int i) => BottomNavigationBarItem(
+            icon: Icon(Icons.access_alarm), title: new Text(i.toString())));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+      appBar: new AppBar(
+        title: new Text('bottomNavigationBarTest'),
+      ),
+      bottomNavigationBar: new BottomNavigationBar(
+        items: _buildBottomItem(),
+        onTap: (index) {
+//          _pageController.jumpToPage(index);
+          _pageController.animateToPage(index,
+              duration: Duration(seconds: 2), curve: ElasticOutCurve(0.8));
+        },
+        currentIndex: _curIndex,
+      ),
+      body: PageView.builder(
+          itemCount: 3,
+          onPageChanged: (index) {
+            setState(() {
+              if (_curIndex != index) _curIndex = index;
+            });
+          },
+          controller: _pageController,
+          itemBuilder: (context, index) {
+            return new Text('我是第 ${index} 页');
+          }),
+    );
+  }
+}
+
+/**
+ * iOS风格的控件
+ * CupertinoPageScaffold的navigationBar的高度 没有计算进去  默认是44
+ *
+ */
+class CupertinoTestState extends State<ShowHideWidget> {
+  static const int ITEM_COUNT = 3;
+
+  int _curIndex = 0;
+
+  _buildBottomBarItems() {
+    var item1 = BottomNavigationBarItem(
+        icon: Icon(Icons.access_alarms), title: Text('闹铃'));
+    var item2 = BottomNavigationBarItem(
+        icon: Icon(Icons.battery_alert), title: Text('电量'));
+    var item3 =
+        BottomNavigationBarItem(icon: Icon(Icons.cake), title: Text('蛋糕'));
+    var items = List<BottomNavigationBarItem>();
+    items.add(item1);
+    items.add(item2);
+    items.add(item3);
+    return items;
+  }
+
+  /**
+   * 保存按钮点击状态
+   */
+  var _isChange = false;
+
+  /**
+   * progress
+   */
+  var _value = 0.0;
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoTabScaffold(
+        tabBar: CupertinoTabBar(
+          items: _buildBottomBarItems(),
+          onTap: (position) {},
+          currentIndex: _curIndex,
+        ),
+        tabBuilder: (context, index) {
+          return new CupertinoTabView(
+            builder: (BuildContext context) {
+              return new CupertinoPageScaffold(
+                navigationBar: new CupertinoNavigationBar(
+                  middle: new Text('Page 1 of tab $index'),
+                ),
+                child: new Column(
+                  children: <Widget>[
+                    Text('fffffffff'),
+                    Text('fffffffff'),
+                    CupertinoSwitch(
+                      value: _isChange,
+                      onChanged: (isChanged) {
+                        setState(() {
+                          _isChange = !_isChange;
+                        });
+                      },
+                    ),
+                    CupertinoSlider(
+                      value: _value,
+                      onChanged: (double value) {
+                        setState(() {
+                          _value = value;
+                        });
+                      },
+                      max: 100.0,
+                    ),
+                    CupertinoButton(
+                      child: const Text('Next page'),
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          new CupertinoPageRoute<Null>(
+                            builder: (BuildContext context) {
+                              return new CupertinoPageScaffold(
+                                navigationBar: new CupertinoNavigationBar(
+                                  middle: new Text('Page 2 of tab $index'),
+                                ),
+                                child: new Center(
+                                  child: new CupertinoButton(
+                                    child: const Text('Back'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        });
   }
 }
