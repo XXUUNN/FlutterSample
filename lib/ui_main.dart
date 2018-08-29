@@ -226,7 +226,7 @@ class ShowHideTestPage extends StatelessWidget {
 class ShowHideWidget extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    return new CupertinoTestState();
+    return new TopAndBottomBarTestState();
   }
 }
 
@@ -505,12 +505,42 @@ class CardTestState extends State<ShowHideWidget> {
 }
 
 /**
- * 底部导航栏  页面切换
+ * 底部导航栏 顶部导航栏  页面切换
  * currentIndex 值变化 底部按钮UI变化
  */
-class BottomBarTestState extends State<ShowHideWidget> {
+class TopAndBottomBarTestState extends State<ShowHideWidget>
+    with SingleTickerProviderStateMixin {
   int _curIndex = 0;
-  var _pageController = PageController(initialPage: 0);
+
+  /**
+   * 控制页面
+   * 依靠监听事件 连接 bottom和page
+   */
+  var _pageController;
+
+  /**
+   * 连接tabView 和 tab
+   */
+  TabController _tabController;
+//  List<int>  tabBarState= [0,0,0];
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: 0);
+    _tabController = TabController(length: 3, initialIndex: 0, vsync: this);
+//    _tabController.addListener(() {
+//      setState(() {
+//        tabBarState.setAll(_curIndex, [_tabController.index]);
+//      });
+//
+//    });
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   _buildBottomItem() {
     return List<BottomNavigationBarItem>.generate(
@@ -519,11 +549,24 @@ class BottomBarTestState extends State<ShowHideWidget> {
             icon: Icon(Icons.access_alarm), title: new Text(i.toString())));
   }
 
+  List<Widget> _buildTopTabs() {
+    return List<Tab>.generate(
+        3,
+        (int i) => Tab(
+              text: i.toString(),
+              icon: Icon(Icons.cake),
+            ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
         title: new Text('bottomNavigationBarTest'),
+        bottom: TabBar(
+          tabs: _buildTopTabs(),
+          controller: _tabController,
+        ),
       ),
       bottomNavigationBar: new BottomNavigationBar(
         items: _buildBottomItem(),
@@ -539,11 +582,19 @@ class BottomBarTestState extends State<ShowHideWidget> {
           onPageChanged: (index) {
             setState(() {
               if (_curIndex != index) _curIndex = index;
+//              _tabController.index = tabBarState[_curIndex];
             });
           },
           controller: _pageController,
           itemBuilder: (context, index) {
-            return new Text('我是第 ${index} 页');
+            return TabBarView(
+              children: <Widget>[
+                new Text('0000我是第 ${index} 页'),
+                new Text('111我是第 ${index} 页'),
+                new Text('222我是第 ${index} 页'),
+              ],
+              controller: _tabController,
+            );
           }),
     );
   }
@@ -552,6 +603,8 @@ class BottomBarTestState extends State<ShowHideWidget> {
 /**
  * iOS风格的控件
  * CupertinoPageScaffold的navigationBar的高度 没有计算进去  默认是44
+ * CupertinoTabScaffold   CupertinoPageScaffold的背景颜色 如果不是透明的，
+ * 那就占据那一块的位置，否则 不占据，布局内容 是整个屏幕
  *
  */
 class CupertinoTestState extends State<ShowHideWidget> {
@@ -590,62 +643,68 @@ class CupertinoTestState extends State<ShowHideWidget> {
           items: _buildBottomBarItems(),
           onTap: (position) {},
           currentIndex: _curIndex,
+          backgroundColor: Colors.white,
         ),
         tabBuilder: (context, index) {
           return new CupertinoTabView(
             builder: (BuildContext context) {
               return new CupertinoPageScaffold(
-                navigationBar: new CupertinoNavigationBar(
-                  middle: new Text('Page 1 of tab $index'),
-                ),
-                child: new Column(
-                  children: <Widget>[
-                    Text('fffffffff'),
-                    Text('fffffffff'),
-                    CupertinoSwitch(
-                      value: _isChange,
-                      onChanged: (isChanged) {
-                        setState(() {
-                          _isChange = !_isChange;
-                        });
-                      },
+                  navigationBar: new CupertinoNavigationBar(
+                    middle: new Text('Page 1 of tab $index'),
+                    backgroundColor: Colors.white,
+                  ),
+                  child: Scaffold(
+                    body: new Column(
+                      children: <Widget>[
+                        Text('fffffffff'),
+                        Text('fffffffff',
+                            style: TextStyle(
+                              color: CupertinoColors.activeBlue,
+                            )),
+                        CupertinoSwitch(
+                          value: _isChange,
+                          onChanged: (isChanged) {
+                            setState(() {
+                              _isChange = !_isChange;
+                            });
+                          },
+                        ),
+                        CupertinoSlider(
+                          value: _value,
+                          onChanged: (double value) {
+                            setState(() {
+                              _value = value;
+                            });
+                          },
+                          max: 100.0,
+                        ),
+                        CupertinoButton(
+                          child: const Text('Next page'),
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              new CupertinoPageRoute<Null>(
+                                builder: (BuildContext context) {
+                                  return new CupertinoPageScaffold(
+                                    navigationBar: new CupertinoNavigationBar(
+                                      middle: new Text('Page 2 of tab $index'),
+                                    ),
+                                    child: new Center(
+                                      child: new CupertinoButton(
+                                        child: const Text('Back'),
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            );
+                          },
+                        ),
+                      ],
                     ),
-                    CupertinoSlider(
-                      value: _value,
-                      onChanged: (double value) {
-                        setState(() {
-                          _value = value;
-                        });
-                      },
-                      max: 100.0,
-                    ),
-                    CupertinoButton(
-                      child: const Text('Next page'),
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          new CupertinoPageRoute<Null>(
-                            builder: (BuildContext context) {
-                              return new CupertinoPageScaffold(
-                                navigationBar: new CupertinoNavigationBar(
-                                  middle: new Text('Page 2 of tab $index'),
-                                ),
-                                child: new Center(
-                                  child: new CupertinoButton(
-                                    child: const Text('Back'),
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              );
+                  ));
             },
           );
         });
