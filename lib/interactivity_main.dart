@@ -3,18 +3,33 @@ import 'package:flutter/widgets.dart';
 
 void main() => runApp(MainAppPage());
 
-class MainAppPage extends StatefulWidget {
+class MainAppPage extends StatelessWidget {
   @override
-  State<StatefulWidget> createState() {
-    return ClickTestState();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: MainAppPageStateful(),
+      theme: ThemeData.light(),
+      title: 'interactivity',
+    );
   }
 }
 
-class ClickTestState extends State<MainAppPage> {
+class MainAppPageStateful extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return InputTestState();
+  }
+}
+
+/**
+ * GestureDetector给child 增加 交互
+ */
+class ClickTestState extends State<MainAppPageStateful> {
   bool _isFavorited = true;
   int _favoriteCount = 41;
+  bool _isLongPressed = false;
 
-  _favorite(){
+  _favorite() {
     setState(() {
       if (_isFavorited) {
         _favoriteCount -= 1;
@@ -26,25 +41,89 @@ class ClickTestState extends State<MainAppPage> {
     });
   }
 
+  _handleTap() {
+    setState(() {
+      if (_isFavorited) {
+        _isFavorited = false;
+      } else {
+        _isFavorited = true;
+      }
+    });
+  }
+
+  void _doubleTap() {
+    setState(() {
+      _favoriteCount += 10;
+    });
+  }
+
+  _longPress(){
+    setState(() {
+      _isLongPressed = !_isLongPressed;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        Container(
-          padding: EdgeInsets.zero,
-          child: IconButton(
-            icon: _isFavorited?Icon(Icons.favorite):Icon(Icons.favorite_border),
-            onPressed: _favorite,
+    return Scaffold(
+        appBar: AppBar(),
+        body: Center(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Container(
+                padding: EdgeInsets.zero,
+                child: IconButton(
+                  icon: _isFavorited
+                      ? Icon(Icons.favorite)
+                      : Icon(Icons.favorite_border),
+                  onPressed: _favorite,
+                ),
+              ),
+              new SizedBox(
+                width: 18.0,
+                child: new Container(
+                  child: new Text('$_favoriteCount'),
+                ),
+              ),
+              GestureDetector(
+                child: Container(
+                  height: 200.0,
+                  width: 200.0,
+                  alignment: Alignment.center,
+                  child: Text(
+                    '点击',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  decoration: BoxDecoration(
+                    color: _isFavorited ? Colors.red : Colors.blueAccent,
+                    border: Border.all(color: _isLongPressed?Colors.greenAccent:Colors.yellow)
+                  ),
+                ),
+                onTap: _handleTap,
+                onDoubleTap: _doubleTap,
+                onLongPress: _longPress,
+              )
+            ],
           ),
-        ),
-        new SizedBox(
-          width: 18.0,
-          child: new Container(
-            child: new Text('$_favoriteCount'),
-          ),
-        ),
-      ],
-    );
+        ));
   }
+}
+
+
+class InputTestState extends State<MainAppPageStateful>{
+  @override
+  Widget build(BuildContext context) {
+
+    return Scaffold(
+      appBar: AppBar(),
+      body:
+        Center(
+          child: Text('fff ')
+        )
+        ,
+    );
+
+  }
+
 }
