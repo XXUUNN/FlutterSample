@@ -22,7 +22,7 @@ class MainAppPageStateful extends StatefulWidget {
 }
 
 /**
- * GestureDetector给child 增加 交互
+ * Gesture  Detector给child 增加 交互
  */
 class ClickTestState extends State<MainAppPageStateful> {
   bool _isFavorited = true;
@@ -112,6 +112,17 @@ class ClickTestState extends State<MainAppPageStateful> {
 
 
 class InputTestState extends State<MainAppPageStateful>{
+
+
+  String text = 'clickInfoclickInfoclickInfoclickInfoclickInfoclickInfoclickInfo';
+
+  void clickTest() {
+    setState(() {
+      text = text+'click';
+    });
+
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -119,7 +130,12 @@ class InputTestState extends State<MainAppPageStateful>{
       appBar: AppBar(),
       body:
         Center(
-          child: Text('fff ')
+          child: InkWell(child: Container(
+
+            child: Text(text,),
+            width: 300.0,
+            height: 100.0,
+          ),onTap: clickTest ,)
         )
         ,
     );
