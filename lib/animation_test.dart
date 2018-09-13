@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'
+    show LengthLimitingTextInputFormatter, rootBundle;
 
 class AnimatedListSample extends StatefulWidget {
   @override
@@ -9,16 +11,15 @@ class AnimatedListSample extends StatefulWidget {
 }
 
 class _AnimatedListState extends State<AnimatedListSample> {
-
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
   ListModel<int> _list;
   int _selectedItem;
   int _nextItem;
 
-
   @override
   void initState() {
     super.initState();
+
     _list = new ListModel<int>(
       listKey: _listKey,
       initialItems: <int>[0, 1, 2],
@@ -27,7 +28,8 @@ class _AnimatedListState extends State<AnimatedListSample> {
     _nextItem = 3;
   }
 
-  Widget _buildRemovedItem(int item, BuildContext context, Animation<double> animation) {
+  Widget _buildRemovedItem(
+      int item, BuildContext context, Animation<double> animation) {
     return new CardItem(
       animation: animation,
       item: item,
@@ -43,36 +45,46 @@ class _AnimatedListState extends State<AnimatedListSample> {
         appBar: AppBar(
           title: Text('animatedList'),
           actions: <Widget>[
-            IconButton(icon: Icon(Icons.add_circle),
+            IconButton(
+              icon: Icon(Icons.add_circle),
               onPressed: _insert,
-              tooltip: 'insert a new item',),
-            IconButton(icon: Icon(Icons.remove_circle),
+              tooltip: 'insert a new item',
+            ),
+            IconButton(
+              icon: Icon(Icons.remove_circle),
               onPressed: _remove,
-              tooltip: 'remove a new item',),
+              tooltip: 'remove a new item',
+            ),
           ],
         ),
-        body: Padding(padding: EdgeInsets.all(16.0),
+        body: Padding(
+          padding: EdgeInsets.all(16.0),
           child: AnimatedList(
               key: _listKey,
               initialItemCount: _list.length,
-              itemBuilder: _buildItem),),
-
+              itemBuilder: _buildItem),
+        ),
       ),
     );
   }
 
-  Widget _buildItem(BuildContext context, int index, Animation<double> animation) {
-    return CardItem(item: _list[index], animation: animation,
+  Widget _buildItem(
+      BuildContext context, int index, Animation<double> animation) {
+    return CardItem(
+      item: _list[index],
+      animation: animation,
       selected: _selectedItem == _list[index],
       onTap: () {
         setState(() {
           _selectedItem = _selectedItem == _list[index] ? null : _list[index];
         });
-      },);
+      },
+    );
   }
 
   _insert() {
-    final int index = _selectedItem == null ? _list.length : _list.indexOf(_selectedItem);
+    final int index =
+        _selectedItem == null ? _list.length : _list.indexOf(_selectedItem);
     _list.insert(index, _nextItem++);
   }
 
@@ -84,12 +96,9 @@ class _AnimatedListState extends State<AnimatedListSample> {
       });
     }
   }
-
 }
 
 class ListModel<E> {
-
-
   final List<E> _items;
   final GlobalKey<AnimatedListState> listKey;
   final dynamic removedItemBuilder;
@@ -99,11 +108,12 @@ class ListModel<E> {
   ListModel({
     @required this.listKey,
     @required this.removedItemBuilder,
-    Iterable <E> initialItems,
-  })
-      :assert(listKey != null),
+    Iterable<E> initialItems,
+  })  : assert(listKey != null),
         assert(removedItemBuilder != null),
-        _items =new List<E>.from(initialItems ?? <E>[],);
+        _items = new List<E>.from(
+          initialItems ?? <E>[],
+        );
 
   AnimatedListState get _animateList => listKey.currentState;
 
@@ -115,8 +125,8 @@ class ListModel<E> {
   E removeAt(int index) {
     final E removedItem = _items.removeAt(index);
     if (removedItem != null) {
-      _animateList.removeItem(
-          index, (BuildContext context, Animation<double> animation) {
+      _animateList.removeItem(index,
+          (BuildContext context, Animation<double> animation) {
         return removedItemBuilder(removedItem, context, animation);
       });
     }
@@ -129,45 +139,77 @@ class ListModel<E> {
 }
 
 class CardItem extends StatelessWidget {
-
-  CardItem({
-    Key key,
-    @required this.animation,
-    this.onTap,
-    @required this.item,
-    this.selected: false
-  })
-      :assert (animation != null),
+  CardItem(
+      {Key key,
+      @required this.animation,
+      this.onTap,
+      @required this.item,
+      this.selected: false, })
+      : assert(animation != null),
         assert(item != null && item >= 0),
         assert(selected != null),
-        super(key: key);
+        super(key: key){
+    controller = TextEditingController();
+  }
 
+  TextEditingController controller;
   final Animation<double> animation;
   final VoidCallback onTap;
   final int item;
   final bool selected;
 
+  bool isShow = false;
+
 
   @override
   Widget build(BuildContext context) {
-    TextStyle textStyle = Theme
-        .of(context)
-        .textTheme
-        .display1;
+    TextStyle textStyle = Theme.of(context).accentTextTheme.display1;
     if (selected)
-      textStyle = textStyle.copyWith(color: Colors.lightGreenAccent[400]);
+      textStyle = textStyle.copyWith(
+          color: Colors.lightGreenAccent[400], fontFamily: 'test');
 
-    return Padding(padding: EdgeInsets.all(2.0),
-      child: SizeTransition(sizeFactor: animation, axis: Axis.vertical,
-        child: InkWell(onTap: onTap,
-          child: SizedBox(
-            height: 128.0,
-            child: Card(color: Colors.primaries[item % Colors.primaries.length],
-              child: Text('Item $item', style: textStyle,),),
-          ),),),);
+    return Padding(
+        padding: EdgeInsets.all(2.0),
+        child: new GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onTap,
+          child: new SizedBox(
+            height: 200.0,
+            child: new Card(
+              color: Colors.primaries[item % Colors.primaries.length],
+              child: new Center(
+                  child: Column(
+                children: <Widget>[
+                  new Text('中国$item', style: textStyle),
+                  TextField(
+                    inputFormatters: [LengthLimitingTextInputFormatter(5)],
+                    decoration: InputDecoration(
+                        hintText: 'hit',
+                        labelText: 'fffff',
+                        suffixIcon: Icon(Icons.print)),
+                    controller: controller,
+                  ),
+                  RaisedButton(onPressed: () {
+//                    if(!isShow){
+                      if(controller.text == null || controller.text.length == 0){
+                        return;
+                      }
+                      showBottomSheet(context: context, builder:(context){
+                        return Text(controller.text);
+                      });
+//                      isShow = true;
+//                    }else{
+//                      Navigator.of(context).pop();
+//                      isShow =false;
+//                    }
+
+                  },),
+                ],
+              )),
+            ),
+          ),
+        ));
   }
-
 }
 
 void main() => runApp(AnimatedListSample());
-
